@@ -1,8 +1,4 @@
-function code = Level3_Exp_AK_170318_PairedInterleaved_2Cond
-% PairedInterleaved   Code for the ViRMEn experiment PairedInterleaved.
-%   code = PairedInterleaved   Returns handles to the functions that ViRMEn
-%   executes during engine initialization, runtime and termination.
-
+function code = Level3a_Exp_AK_171108_2Cond_TowerHint
 
 % Begin header code - DO NOT EDIT
 code.initialization = @initializationCodeFun;
@@ -14,8 +10,8 @@ code.termination = @terminationCodeFun;
 function vr = initializationCodeFun(vr)
 
 % set parameters
-vr.debugMode = false;
-vr.mouseNum = 013;
+vr.debugMode = true;
+vr.mouseNum = 999;
 vr.mulRewards = 1;
 vr.adapSpeed = 20;
 
@@ -95,6 +91,7 @@ else
     vr.currentCueWorld = 3;
     vr.worlds{1}.surface.visible(vr.blackRightTower) = 1;
 end
+
 vr.whichWorldFlag = 0;
 
 vr.numTrialsTower = 0;
@@ -241,16 +238,23 @@ if vr.inITI == 1 % iti behavior
         end
         
         % pick which world to load next
-        randLeft = rand;
-        if vr.whichWorldFlag == 0
-            if randLeft >= vr.percLeft
-                    vr.currentCueWorld = 5;
-            else
-                    vr.currentCueWorld = 3;
-            end 
+        % edited AK 171108
+%         randLeft = rand;
+%         if vr.whichWorldFlag == 0
+%             if randLeft >= vr.percLeft
+%                     vr.currentCueWorld = 5;
+%             else
+%                     vr.currentCueWorld = 3;
+%             end 
+%         else
+%             vr.currentCueWorld = vr.whichWorldFlag; 
+%         end        
+        if rand >= 0.5
+            vr.currentCueWorld = 5;
         else
-            vr.currentCueWorld = vr.whichWorldFlag; 
-        end        
+            vr.currentCueWorld = 3;
+        end
+
         switch vr.currentCueWorld
             case 3
                 vr.worlds{1}.surface.visible(vr.blackRightTower) = 1;
