@@ -15,7 +15,7 @@ function vr = initializationCodeFun(vr)
 
 vr.debugMode = false;
 vr.verbose = true;
-vr.mouseNum = 999;
+vr.mouseNum = 015;
 vr.greyFac = 0.5; %goes from 0 to 1 to signify the amount of maze which is grey
 vr.itiCorrect = 2;
 vr.itiWrong = 4;
