@@ -16,6 +16,7 @@ function vr = initializationCodeFun(vr)
 vr.debugMode = true;
 vr.verbose = true;
 vr.mouseNum = 999;
+vr.percNovelCues = 0.2;
 vr.greyFac = 0.5; %goes from 0 to 1 to signify the amount of maze which is grey
 vr.itiCorrect = 2;
 vr.itiWrong = 4;
@@ -25,7 +26,7 @@ vr.armFac = 2; % pretty sure this never changes?
 
 %initialize important cell information
 % Note, these are pre-flip!
-vr.conds = {'Black Left','Black Right','White Left','White Right'};
+vr.conds = {'White Left','Black Right','22 Deg Left','68 Deg Right'};
 
 % initialization functions
 vr = initializePath_AK(vr); % set up paths for output
@@ -33,6 +34,13 @@ vr = initTextboxes(vr); % live textboxes
 vr = initDAQ_AK(vr); % NI-DAQ, session based
 vr = initCounters_AK(vr);
 
+% Define indices of worlds
+% vr.whiteLeftWorld = 1;
+% vr.blackRightWorld = 2;
+% vr.leftVertWorld = 3;
+% vr.rightHorizWorld = 4;
+vr.Cues = [1 2];
+vr.novelCues = [3 4];
 % Define indices of walls
 %{
 vr.LeftWallBlack = vr.worlds{1}.objects.triangles(vr.worlds{1}.objects.indices.LeftWallBlack,:);
@@ -92,11 +100,9 @@ vr.numTrials = 1;
 vr.trialRecord = struct('cueType',[],'mouseTurn',[],'success',[]);
 vr.iterationNum = 0; % counts iterations of runtime code
 
-     
-
 %vr.cellWrite = 1; % write to cell as well
 vr.STATE = 'INIT_TRIAL';
-vr.currentWorld = 1;
+
 
 %--- RUNTIME code: executes on every iteration of the ViRMEn engine.
 function vr = runtimeCodeFun(vr)
@@ -128,9 +134,18 @@ end
 switch vr.STATE
     case 'INIT_TRIAL'
         
-        vr.Cues=[2 3]; % This task has no matching, so only cues 2 and 3 are used
+        %vr.Cues=[2 3]; % This task has no matching, so only cues 2 and 3 are used
         % cues: 'Black Left','Black Right','White Left','White Right'
-        vr.cuePos = randsample(vr.Cues,1);
+        if rand < vr.percNovelCues
+            vr.cuePos = randsample(vr.novelCues,1);
+            vr.currentWorld = vr.cuePos;
+        else
+            vr.cuePos = randsample(vr.Cues,1);
+            vr.currentWorld = vr.cuePos;
+        end       
+        disp([string('cueType = ') + num2str(vr.cuePos)]);
+        
+        
         vr.trialRecord(vr.numTrials).cueType=vr.cuePos;
         
         %{
@@ -152,8 +167,8 @@ switch vr.STATE
                 error('No World');
         end
         %}
-        vr.worlds{1}.surface.visible(:) = 1;
-        vr.position = vr.worlds{1}.startLocation;
+        vr.worlds{vr.cuePos}.surface.visible(:) = 1;
+        vr.position = vr.worlds{vr.cuePos}.startLocation;
        
         vr.dp = 0; %prevents movement
         vr.trialStartTime = rem(now,1);                
@@ -226,7 +241,7 @@ switch vr.STATE
         
         vr.isReward = 0; % turn off isReward flag (for GLM?)
         vr.inITI = 1;
-        vr.worlds{1}.surface.visible(:) = 0;
+        vr.worlds{vr.cuePos}.surface.visible(:) = 0;
         vr.itiStartTime = tic; % start ITI timer
         vr.STATE = 'ITI';
         if vr.verbose; disp('ITI state'); end
