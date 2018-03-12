@@ -67,14 +67,18 @@ for i = 1:length(a)-1 % first entry is conds (should fix)
     end
 end
 numTrials = length(a)-1;
+
+disp(['Dot:' num2str((rewardsLeftDot+rewardsRightDot)/(leftDotTrials+rightDotTrials))]);
+disp(['Grating:' num2str((rewardsLeftGrating+rewardsRightGrating)/(leftGratingTrials+rightGratingTrials))]);
+
+disp(['Overall: ' num2str(rewardsAll) '/'  num2str(numTrials) '  ' num2str(rewardsAll/numTrials)]);
 disp(['Left Dot:' num2str(rewardsLeftDot) '/' num2str(leftDotTrials)]);
 disp(['Right Dot:' num2str(rewardsRightDot) '/' num2str(rightDotTrials)]);
 disp(['Left Grating:' num2str(rewardsLeftGrating) '/' num2str(leftGratingTrials)]);
 disp(['Right Grating:' num2str(rewardsRightGrating) '/' num2str(rightGratingTrials)]);
-disp(['Overall: ' num2str(rewardsAll) '/'  num2str(numTrials) '  ' num2str(rewardsAll/numTrials)]);
 
 
 cumRewards = cumsum(rewardRec);
 trialDummy = 1:length(a)-1;
 figure; plot(trialDummy,cumRewards,'b',trialDummy,trialDummy/2,'r--');
-axis square;
+axis square; grid on;

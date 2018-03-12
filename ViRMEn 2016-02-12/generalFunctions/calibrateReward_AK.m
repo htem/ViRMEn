@@ -15,3 +15,5 @@ vr2.ao.Rate = 1e4;
 for j = 1:250
     vr2 = giveReward_AK(vr2,1);   % dispense 250 rewards instead of 1 reward at longer duration.
 end
+
+delete(vr2.ao);

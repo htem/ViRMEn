@@ -17,8 +17,8 @@ vr.debugMode = true;
 vr.verbose = true;
 vr.mouseNum = 999;
 
-vr.dotTrials = 2;
-vr.novelTrialsHint = 2;
+vr.dotTrials = 1;
+vr.novelTrialsHint = 1;
 vr.novelTrials = 2;
 
 vr.blockLength = vr.dotTrials+vr.novelTrialsHint+vr.novelTrials; 
@@ -135,11 +135,11 @@ switch vr.STATE
         if abs(vr.position(1)) > eval(vr.exper.variables.armLength)/vr.armFac            
             if vr.position(1) < 0 %left turn
                 vr.trialRecord(vr.numTrials).mouseTurn='Left';
-                if ismember(vr.cuePos,[1 3]) %correct L
+                if ismember(vr.cuePos,[1 3 5]) %correct L
                     if vr.verbose; disp('Correct Left Turn Detected'); end
                     vr.isReward = 1;                   
                     vr=giveReward_AK(vr,vr.numRewPer);
-                elseif ismember(vr.cuePos,[2 4]) %incorrect L
+                elseif ismember(vr.cuePos,[2 4 6]) %incorrect L
                     vr.isReward = 0;
                     if vr.verbose; disp('Wrong Left Turn Detected'); end;
                 else
@@ -147,10 +147,10 @@ switch vr.STATE
                 end                
             elseif  vr.position(1) > 0 %R turn
                 vr.trialRecord(vr.numTrials).mouseTurn='Right';
-                if ismember(vr.cuePos,[1,3]) %incorrect R
+                if ismember(vr.cuePos,[1,3,5]) %incorrect R
                     vr.isReward=0;
                     if vr.verbose; disp('Wrong Right Turn Detected');end
-                elseif ismember(vr.cuePos,[2 4]) %correct R
+                elseif ismember(vr.cuePos,[2 4 6]) %correct R
                     if vr.verbose; disp('Correct Right Turn Detected'); end;
                     vr.isReward=1;
                     vr=giveReward_AK(vr,vr.numRewPer);
