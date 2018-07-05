@@ -62,9 +62,9 @@ switch vr.STATE
     case 'TRIAL'
         % check for sucessful completion of trial
         % vr.faceBackwards = abs(mod(vr.position(4),2*3.14)) > 3.14/2; 
-        vr.allowedAngle = pi/2;
+        vr.allowedAngle = pi/2
         vr.angle = mod(vr.position(4),2*pi);
-        vr.faceForwards = vr.angle < vr.allowedAngle || vr.angle > 2*pi - vr.allowedAngle;
+        vr.faceForwards = vr.angle < pi/2 || vr.angle > 3*pi/2;
         %vr.faceBackwards = abs(mod(vr.position(4),2*3.14)) > 3.14/2;
         if vr.position(2) > vr.wallLength-15 && vr.faceForwards
             % faceback doesnt work right now pos 4 is neg. Is this fixed??

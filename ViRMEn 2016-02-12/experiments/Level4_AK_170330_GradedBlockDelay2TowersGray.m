@@ -17,7 +17,7 @@ function vr = initializationCodeFun(vr)
 vr.debugMode = true;
 
 vr.mouseNum = 002;
-vr.greyFac = 3/6; %goes from 0 to 1 to signify the amount of maze which is grey
+vr.greyFac = 0/6; %goes from 0 to 1 to signify the amount of maze which is grey
 vr.maxGrey = 3/6;
 vr.blockThresh = [0 1/6 2/6 3/6 4/6]; %thresholds for blocks
 vr.trialBlockThresh = 20;

@@ -14,8 +14,8 @@ code.termination = @terminationCodeFun;
 function vr = initializationCodeFun(vr)
 
 % set parameters
-vr.debugMode = false;
-vr.mouseNum = 013;
+vr.debugMode = true;
+vr.mouseNum = 99;
 vr.mulRewards = 1;
 vr.adapSpeed = 20;
 
