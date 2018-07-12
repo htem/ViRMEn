@@ -17,7 +17,7 @@ vr.adjustmentFactor = 0.01;
 vr.lengthFactor = 0;
 vr.trialTimeout = 120;
 vr.itiDur = 2;  % increased itiDur from 1 to 3 to discourage initial running of mice at start
-vr.friction = 1.0; % define friction that will reduce velocity by 70% during collisions
+vr.friction = ; % define friction that will reduce velocity by 70% during collisions
 
 % experimental condition labeel
 vr.conds = {'tExtending'};
