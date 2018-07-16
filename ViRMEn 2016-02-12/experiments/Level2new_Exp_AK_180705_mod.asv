@@ -15,8 +15,8 @@ function vr = initializationCodeFun(vr)
 vr.debugMode = true;
 vr.verbose = true;
 vr.mouseNum = 999;
-vr.adjustmentFactor = 0.01;
-vr.lengthFactor = 0;
+vr.adjustmentFactor = 0.4;
+vr.lengthFactor = 0.1;
 vr.timeout = 20;
 vr.itiCorrect = 2;
 vr.itiWrong = 4;
@@ -48,10 +48,11 @@ vr.STATE = 'INIT_TRIAL';
 vr.trialTime = 0;
 
 % world object handles
-vr.adjustmentFactor = 0.01;
+vr.mazeLength = eval(vr.exper.variables.mazeLength);
+
 vr.wallLength = str2double(vr.exper.variables.wallLength);
-vr.minWallLength = eval(vr.exper.variables.wallLengthMin);  % default is 143.8317
-vr.lengthFactor = 0;
+%vr.minMazeLength = eval(vr.exper.variables.minMazeLength);  % default is 143.8317
+%vr.minWallLength = eval(vr.exper.variables.wallLengthMin);  % default is 143.8317
 vr.startLocation = vr.worlds{1}.startLocation;          % Specified in the world
 vr.startLocationCurrent = vr.startLocation;
 
@@ -98,7 +99,6 @@ switch vr.STATE
         if vr.verbose; disp('TRIAL state'); end
         
         
-       %Taken from world 2, where to put, is it testing time or correctness
         % if mouse completed in less than 20 sec, make the map longer
         % otherwise make it shorter
         if vr.trialTime < vr.timeout
@@ -114,40 +114,45 @@ switch vr.STATE
                 vr.lengthFactor = 0;		
             end
             
+            disp(['vr.lengthFactor = ' num2str(vr.lengthFactor)]);
             % set up world
+            
+            vr.startLocationCurrent(2) = vr.mazeLength - (vr.mazeLength * vr.lengthFactor);
+            
             % ATK - not happy with this, but a quick fix isn't easy
-            length_temp = vr.minWallLength + (vr.lengthFactor)*(vr.wallLength - vr.minWallLength);
-            vr.startLocationCurrent(2) = vr.startLocation(2) - (vr.lengthFactor)*(vr.wallLength - vr.minWallLength);
-            vr.exper.variables.wallLengthMin = num2str(length_temp); %this actually changes the back wall
+            %length_temp = vr.minWallLength + (vr.lengthFactor)*(vr.wallLength - vr.minWallLength);
+            %vr.startLocationCurrent(2) = vr.startLocation(2) - length_temp;
+            %vr.exper.variables.wallLengthMin = num2str(length_temp); %this actually changes the back wall
             % note that vr.minWallLength is always 40, even though the
             % exper var changes
-            vr.worlds{1} = loadVirmenWorld(vr.exper.worlds{1});
+            
+           % vr.worlds{1} = loadVirmenWorld(vr.exper.worlds{1});
             vr.worlds{1}.surface.visible(:) = 0;
             vr.position = vr.startLocationCurrent;  % teleports the mouse
             vr.dp = 0;
-            vr.worlds{1}.surface.visible(:) = 1;
+            %vr.worlds{1}.surface.visible(:) = 1;
 
     case 'TRIAL'
         % check for trial end condition: in arm of T
         if abs(vr.position(1)) > eval(vr.exper.variables.armLength)/vr.armFac            
             if vr.position(1) < 0 %left turn
                 vr.trialRecord(vr.numTrials).mouseTurn='Left';
-                if ismember(vr.cuePos,[2]) %correct L %chnage to 2?
-                    if vr.verbose; disp('Correct Left Turn Detected'); end %do we get rid of 4, 5, 6, 3?, do we switch 1,2?
+                if ismember(vr.cuePos,[2]) %correct Left
+                    if vr.verbose; disp('Correct Left Turn Detected'); end
                     vr.isReward = 1;                   
                     vr=giveReward_AK(vr,vr.numRewPer);
-                elseif ismember(vr.cuePos,[1]) %incorrect L %change to 1?
+                elseif ismember(vr.cuePos,[1]) %incorrect Left
                     vr.isReward = 0;
                     if vr.verbose; disp('Wrong Left Turn Detected'); end;
                 else
                     disp('Cue Type Error!');
                 end                
-            elseif  vr.position(1) > 0 %R turn
+            elseif  vr.position(1) > 0 %Right turn
                 vr.trialRecord(vr.numTrials).mouseTurn='Right';
-                if ismember(vr.cuePos,[2]) %incorrect R %switch to 2?
+                if ismember(vr.cuePos,[2]) %incorrect Right
                     vr.isReward=0;
                     if vr.verbose; disp('Wrong Right Turn Detected');end
-                elseif ismember(vr.cuePos,[1]) %correct R %swithc to 1?
+                elseif ismember(vr.cuePos,[1]) %correct Right
                     if vr.verbose; disp('Correct Right Turn Detected'); end;
                     vr.isReward=1;
                     vr=giveReward_AK(vr,vr.numRewPer);

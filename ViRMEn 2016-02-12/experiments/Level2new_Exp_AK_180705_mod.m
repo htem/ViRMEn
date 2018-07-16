@@ -16,7 +16,7 @@ vr.debugMode = true;
 vr.verbose = true;
 vr.mouseNum = 999;
 vr.adjustmentFactor = 0.01;
-vr.lengthFactor = 0;
+vr.lengthFactor = 0.2;
 vr.timeout = 20;
 vr.itiCorrect = 2;
 vr.itiWrong = 4;
@@ -48,10 +48,10 @@ vr.STATE = 'INIT_TRIAL';
 vr.trialTime = 0;
 
 % world object handles
-vr.adjustmentFactor = 0.01;
+vr.mazeLength = eval(vr.exper.variables.mazeLength);
 vr.wallLength = str2double(vr.exper.variables.wallLength);
-vr.minWallLength = eval(vr.exper.variables.wallLengthMin);  % default is 143.8317
-vr.lengthFactor = 0;
+%vr.minMazeLength = eval(vr.exper.variables.minMazeLength);  % default is 143.8317
+%vr.minWallLength = eval(vr.exper.variables.wallLengthMin);  % default is 143.8317
 vr.startLocation = vr.worlds{1}.startLocation;          % Specified in the world
 vr.startLocationCurrent = vr.startLocation;
 
@@ -96,8 +96,7 @@ switch vr.STATE
         vr.trialStart = tic;
         vr.STATE = 'TRIAL';
         if vr.verbose; disp('TRIAL state'); end
-        
-        
+                
         % if mouse completed in less than 20 sec, make the map longer
         % otherwise make it shorter
         if vr.trialTime < vr.timeout
@@ -105,27 +104,40 @@ switch vr.STATE
         else
             vr.lengthFactor = vr.lengthFactor - vr.adjustmentFactor;
         end
-
-        % but always within bounds 
-            if vr.lengthFactor > 1
-                vr.lengthFactor = 1;
-            elseif vr.lengthFactor < 0
-                vr.lengthFactor = 0;		
-            end
-            
-            % set up world
-            % ATK - not happy with this, but a quick fix isn't easy
-            length_temp = vr.minWallLength + (vr.lengthFactor)*(vr.wallLength - vr.minWallLength);
-            vr.startLocationCurrent(2) = vr.startLocation(2) - (vr.lengthFactor)*(vr.wallLength - vr.minWallLength);
-            vr.exper.variables.wallLengthMin = num2str(length_temp); %this actually changes the back wall
-            % note that vr.minWallLength is always 40, even though the
-            % exper var changes
-            vr.worlds{1} = loadVirmenWorld(vr.exper.worlds{1});
-            vr.worlds{1}.surface.visible(:) = 0;
-            vr.position = vr.startLocationCurrent;  % teleports the mouse
-            vr.dp = 0;
-            vr.worlds{1}.surface.visible(:) = 1;
-
+        
+        % but always within bounds
+        if vr.lengthFactor > 1
+            vr.lengthFactor = 1;
+        elseif vr.lengthFactor < 0
+            vr.lengthFactor = 0;
+        end
+        
+        disp(['vr.lengthFactor = ' num2str(vr.lengthFactor)]);
+        % set up world
+        
+        vr.startLocationCurrent(2) = vr.mazeLength - (vr.mazeLength * vr.lengthFactor);
+        
+        % ATK - not happy with this, but a quick fix isn't easy
+        %length_temp = vr.minWallLength + (vr.lengthFactor)*(vr.wallLength - vr.minWallLength);
+        %vr.startLocationCurrent(2) = vr.startLocation(2) - length_temp;
+        %vr.exper.variables.wallLengthMin = num2str(length_temp); %this actually changes the back wall
+        % note that vr.minWallLength is always 40, even though the
+        % exper var changes
+        
+        %vr.worlds{1} = loadVirmenWorld(vr.exper.worlds{1});
+        %vr.worlds{1}.surface.visible(:) = 0;
+        vr.position = vr.startLocationCurrent;  % teleports the mouse
+        %disp(['vr.startLocation = ' num2str(vr.position)]);
+        vr.dp = 0;
+        %vr.worlds{1}.surface.visible(:) = 1;
+        
+        vr.trialStartTime = rem(now,1);
+        vr.numTrials = vr.numTrials+1; %increment trial counters
+        vr.trialStartClk = vr.iterationNum;
+        vr.trialStart = tic;
+        vr.STATE = 'TRIAL';
+        if vr.verbose; disp('TRIAL state'); end;
+        
     case 'TRIAL'
         % check for trial end condition: in arm of T
         if abs(vr.position(1)) > eval(vr.exper.variables.armLength)/vr.armFac            

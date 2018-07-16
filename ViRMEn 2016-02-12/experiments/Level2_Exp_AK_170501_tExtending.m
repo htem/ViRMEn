@@ -13,11 +13,11 @@ function vr = initializationCodeFun(vr)
 % set parameters
 vr.debugMode = true;
 vr.mouseNum = 999;
-vr.adjustmentFactor = 0.01;
+vr.adjustmentFactor = 0.4;
 vr.lengthFactor = 0;
 vr.trialTimeout = 120;
 vr.itiDur = 2;  % increased itiDur from 1 to 3 to discourage initial running of mice at start
-vr.friction = ; % define friction that will reduce velocity by 70% during collisions
+vr.friction = 1; % define friction that will reduce velocity by 70% during collisions
 
 % experimental condition labeel
 vr.conds = {'tExtending'};
@@ -147,10 +147,14 @@ switch vr.STATE
                 vr.lengthFactor = 0;		
             end
         
+         disp(['length factor =  ' vr.lengthFactor]);
          % set up world
             % ATK - not happy with this, but a quick fix isn't easy
-            length_temp = vr.minWallLength + (vr.lengthFactor)*(vr.wallLength - vr.minWallLength);
-            vr.startLocationCurrent(2) = vr.startLocation(2) - (vr.lengthFactor)*(vr.wallLength - vr.minWallLength);
+            vr.startLocationCurrent(2) = vr.wallLength - vr.lengthFactor*(vr.wallLength - vr.minWallLength);
+            
+            
+            %length_temp = vr.minWallLength + (vr.lengthFactor)*(vr.wallLength - vr.minWallLength);
+            %vr.startLocationCurrent(2) = vr.startLocation(2) - (vr.lengthFactor)*(vr.wallLength - vr.minWallLength);
             vr.exper.variables.wallLengthMin = num2str(length_temp); %this actually changes the back wall
             % note that vr.minWallLength is always 40, even though the
             % exper var changes
