@@ -1,7 +1,4 @@
-function code = Level2new_Exp_AK_180705
-% White - Right Black - Left - New rig parameters
-% Note that all directions (RL) are from the code perspective
-
+function code = Level2new_Exp_AK_180705_mod
 
 % Begin header code - DO NOT EDIT
 code.initialization = @initializationCodeFun;
@@ -12,20 +9,21 @@ code.termination = @terminationCodeFun;
 % --- INITIALIZATION code: executes before the ViRMEN engine starts.
 function vr = initializationCodeFun(vr)
 
+%%% Thes
 vr.debugMode = true;
 vr.verbose = true;
 vr.mouseNum = 999;
-vr.adjustmentFactor = 0.4;
-vr.lengthFactor = 0.1;
+vr.adjustmentFactor = 0.01;
+vr.initialLengthFactor = 0.2;
 vr.timeout = 20;
+
 vr.itiCorrect = 2;
 vr.itiWrong = 4;
-vr.breakFlag = 0;
 vr.numRewPer = 1;
 vr.armFac = 2; % pretty sure this never changes?
-vr.greyFac = 0.5; %this is hardcoded in the maze
-%initialize important cell information
-% Note, these are pre-flip!
+
+% define possible cue values
+vr.Cues = [1 2];
 vr.conds = {'White Right Tower Hint','Black Left Tower Hint'};
 
 % initialization functions
@@ -34,7 +32,6 @@ vr = initTextboxes(vr); % live textboxes
 vr = initDAQ_AK(vr); % NI-DAQ, session based
 vr = initCounters_AK(vr);
 
-vr.Cues = [1 2];
 
 % trial record
 vr.numTrials = 1;
@@ -44,17 +41,11 @@ vr.iterationNum = 0; % counts iterations of runtime code
 %vr.cellWrite = 1; % write to cell as well
 vr.STATE = 'INIT_TRIAL';
 
-% need to define this variable for first iteration
-vr.trialTime = 0;
-
 % world object handles
 vr.mazeLength = eval(vr.exper.variables.mazeLength);
-
 vr.wallLength = str2double(vr.exper.variables.wallLength);
-%vr.minMazeLength = eval(vr.exper.variables.minMazeLength);  % default is 143.8317
-%vr.minWallLength = eval(vr.exper.variables.wallLengthMin);  % default is 143.8317
-vr.startLocation = vr.worlds{1}.startLocation;          % Specified in the world
-vr.startLocationCurrent = vr.startLocation;
+vr.startLocationCurrent = vr.worlds{1}.startLocation; % Specified in the world
+vr.lengthFactor = vr.initialLengtFactor
 
 %--- RUNTIME code: executes on every iteration of the ViRMEn engine.
 function vr = runtimeCodeFun(vr)
@@ -63,75 +54,49 @@ vr.iterationNum = vr.iterationNum+1;
 vr = checkManualReward(vr);
 vr = updateTextDisplay_AK(vr);
 
-% send synchronization pulses
-if ~vr.debugMode
-    if vr.iterationNum == 1
-        outputSingleScan(vr.ao,[0 10]);
-    elseif mod(vr.iterationNum,1e4)==0 %should be 1e4?
-        outputSingleScan(vr.ao,[0 vr.iterationNum/1e5]);
-    else
-        outputSingleScan(vr.ao,[0 -1]);
-    end
-    outputSingleScan(vr.ao,[0 -5]);
-end
-
 % states: INIT_TRIAL -> TRIAL -> INIT_ITI-> ITI -> INIT_TRIAL
 
 switch vr.STATE
-    case 'INIT_TRIAL'
-     
+    case 'INIT_TRIAL'    
+        % if mouse completed previous trial in less than 20 sec, make the map longer
+        % otherwise make it shorter
+        if exist('vr.trialTime','var') % skips first iteration
+            if vr.trialTime < vr.timeout
+                vr.lengthFactor = vr.lengthFactor + vr.adjustmentFactor;
+            else
+                vr.lengthFactor = vr.lengthFactor - vr.adjustmentFactor;
+            end
+        end
+        % but always within bounds
+        if vr.lengthFactor > 1
+            vr.lengthFactor = 1;
+        elseif vr.lengthFactor < vr.initialLengthFactor
+            vr.initalLengthFactor = 0;
+        end
+        
+        if vr.verbose 
+            disp(['vr.lengthFactor = ' num2str(vr.lengthFactor)]);
+        end
+         
+        % Choose cue for next trial
         vr.cuePos = randsample(vr.Cues,1);
         vr.currentWorld = vr.cuePos;
 
-        disp([string('cueType = ') + num2str(vr.cuePos)]);
+        if vr.verbose; disp([string('cueType = ') + num2str(vr.cuePos)]); end
         vr.trialRecord(vr.numTrials).cueType=vr.cuePos;
+
+        % Set up world
+        vr.startLocationCurrent(2) = vr.mazeLength - (vr.mazeLength * vr.lengthFactor);
+        vr.position = vr.startLocationCurrent;  % teleports the mouse
+        vr.dp = 0;
         
-     
-        vr.worlds{vr.cuePos}.surface.visible(:) = 1;
-        vr.position = vr.worlds{vr.cuePos}.startLocation;
-       
-        vr.dp = 0; %prevents movement
-        vr.trialStartTime = rem(now,1);                
+        vr.trialStartTime = rem(now,1);
         vr.numTrials = vr.numTrials+1; %increment trial counters
         vr.trialStartClk = vr.iterationNum;
         vr.trialStart = tic;
         vr.STATE = 'TRIAL';
-        if vr.verbose; disp('TRIAL state'); end
+        if vr.verbose; disp('TRIAL state'); end;
         
-        
-        % if mouse completed in less than 20 sec, make the map longer
-        % otherwise make it shorter
-        if vr.trialTime < vr.timeout
-            vr.lengthFactor = vr.lengthFactor + vr.adjustmentFactor;
-        else
-            vr.lengthFactor = vr.lengthFactor - vr.adjustmentFactor;
-        end
-
-        % but always within bounds 
-            if vr.lengthFactor > 1
-                vr.lengthFactor = 1;
-            elseif vr.lengthFactor < 0
-                vr.lengthFactor = 0;		
-            end
-            
-            disp(['vr.lengthFactor = ' num2str(vr.lengthFactor)]);
-            % set up world
-            
-            vr.startLocationCurrent(2) = vr.mazeLength - (vr.mazeLength * vr.lengthFactor);
-            
-            % ATK - not happy with this, but a quick fix isn't easy
-            %length_temp = vr.minWallLength + (vr.lengthFactor)*(vr.wallLength - vr.minWallLength);
-            %vr.startLocationCurrent(2) = vr.startLocation(2) - length_temp;
-            %vr.exper.variables.wallLengthMin = num2str(length_temp); %this actually changes the back wall
-            % note that vr.minWallLength is always 40, even though the
-            % exper var changes
-            
-           % vr.worlds{1} = loadVirmenWorld(vr.exper.worlds{1});
-            vr.worlds{1}.surface.visible(:) = 0;
-            vr.position = vr.startLocationCurrent;  % teleports the mouse
-            vr.dp = 0;
-            %vr.worlds{1}.surface.visible(:) = 1;
-
     case 'TRIAL'
         % check for trial end condition: in arm of T
         if abs(vr.position(1)) > eval(vr.exper.variables.armLength)/vr.armFac            
@@ -190,7 +155,7 @@ switch vr.STATE
         if vr.verbose; disp('writing cell data'); end
         vr.frameRate = vr.trialLength/(vr.trialEndClk-vr.trialStartClk+1)*1000;
         dataStruct=struct('success',vr.isReward,'conds',vr.cuePos,...
-            'greyFac',vr.greyFac,'trialStart',vr.trialStartClk,'trialEnd',vr.trialEndClk,...
+            'trialStart',vr.trialStartClk,'trialEnd',vr.trialEndClk,...
             'trialLength',vr.trialLength,'FrameRate',vr.frameRate); 
         eval(['data',num2str(vr.numTrials),'=dataStruct;']);
         %save datastruct
@@ -222,10 +187,6 @@ switch vr.STATE
         disp('state error!');
         return;
 end
-
-% write continuous data
-fwrite(vr.fid,[rem(now,1) vr.position([1:2,4]) vr.velocity(1:2) vr.cuePos vr.isReward vr.inITI vr.greyFac vr.breakFlag],'float');
-
 
 % --- TERMINATION code: executes after the ViRMEn engine stops.
 function vr = terminationCodeFun(vr)
