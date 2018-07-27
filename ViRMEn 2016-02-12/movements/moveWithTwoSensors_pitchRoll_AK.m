@@ -11,7 +11,7 @@ end
 % Teensy can send voltage between 0 and 3.3V, so that ~1.65 V 
 % corresponds to no movement. This voltage needs calibration 
 % because there is subtle fluctuations from day to day.
-mvDataNorm = mvData - [1.685765, 1.685596, 1.683304]    ; 
+mvDataNorm = mvData - [1.689352, 1.689142, 1.687194]    ; 
 
 % mvData
 % 1: roll
@@ -27,7 +27,7 @@ circum = 64; % circumference of the ball
 gain = .45; % basically a fudge factor
 % 100 unit is defined as 75 cm
 alpha = -100/75*gain*circum/V;
-flip = 1; % set to 1 if the mirror flips right and left in Virmen 
+flip = 0; % set to 1 if the mirror flips right and left in Virmen 
 
 %{
  % this works!
