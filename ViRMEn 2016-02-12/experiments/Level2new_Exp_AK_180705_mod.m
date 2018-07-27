@@ -10,15 +10,15 @@ code.termination = @terminationCodeFun;
 function vr = initializationCodeFun(vr)
 
 %%%%% These variables should be checked each run %%%%%
-vr.debugMode = true;
+vr.debugMode = false;
 vr.verbose = true;
-vr.mouseNum = 999;
+vr.mouseNum = 099;
 vr.adjustmentFactor = 0.01;
-vr.initialLengthFactor = 0.2;
+vr.initialLengthFactor = 0.25;
 %%%%%%%%%%%
 
-vr.timeout = 20;
-vr.itiCorrect = 2;
+vr.timeout = 30;
+vr.itiCorrect = 1;
 vr.itiWrong = 4;
 vr.numRewPer = 1;
 vr.armFac = 2; % pretty sure this never changes?
@@ -61,9 +61,8 @@ switch vr.STATE
     case 'INIT_TRIAL'    
         %  if previous trial correct and fast, make the map longer
         % otherwise make it shorter
-        vr.trialTime
-        vr.success
-        if vr.trialTime < vr.timeout && vr.success == 1
+        if vr.trialTime < vr.timeout % && vr.success == 1
+        % atk 180725 dont want maze to get shorter if he gets wrong
             vr.lengthFactor = vr.lengthFactor + vr.adjustmentFactor;
         else
             vr.lengthFactor = vr.lengthFactor - vr.adjustmentFactor;
@@ -87,7 +86,8 @@ switch vr.STATE
         vr.trialRecord(vr.numTrials).cueType=vr.cuePos;
 
         % Set up world
-        vr.startLocationCurrent(2) = vr.mazeLength - (vr.mazeLength * vr.lengthFactor);
+        vr.currentLength = vr.mazeLength * vr.lengthFactor;
+        vr.startLocationCurrent(2) = vr.mazeLength - vr.currentLength;
         vr.position = vr.startLocationCurrent;  % teleports the mouse
         vr.worlds{vr.cuePos}.surface.visible(:) = 1;
         vr.dp = 0;
@@ -158,7 +158,8 @@ switch vr.STATE
         vr.frameRate = vr.trialLength/(vr.trialEndClk-vr.trialStartClk+1)*1000;
         dataStruct=struct('success',vr.success,'conds',vr.cuePos,...
             'trialStart',vr.trialStartClk,'trialEnd',vr.trialEndClk,...
-            'trialLength',vr.trialLength,'FrameRate',vr.frameRate); 
+            'trialLength',vr.trialLength,'FrameRate',vr.frameRate,...
+            'mazeLength',vr.currentLength); 
         eval(['data',num2str(vr.numTrials),'=dataStruct;']);
         %save datastruct
         if exist(vr.pathTempMatCell,'file')
