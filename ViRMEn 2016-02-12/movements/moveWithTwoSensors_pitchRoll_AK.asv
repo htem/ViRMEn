@@ -11,7 +11,7 @@ end
 % Teensy can send voltage between 0 and 3.3V, so that ~1.65 V 
 % corresponds to no movement. This voltage needs calibration 
 % because there is subtle fluctuations from day to day.
-mvDataNorm = mvData - [1.690629, 1.693061, 1.693771]    ; 
+mvDataNorm = mvData - [1.689623, 1.689457, 1.685658 ]    ; 
 
 % mvData
 % 1: roll
@@ -37,26 +37,28 @@ velocity(1) = -alpha*mvDataNorm(2)*sin(vr.position(4));
 velocity(2) = alpha*mvDataNorm(2)*cos(vr.position(4));
 %}
 
-%{ 
-% use all 3
-% beta = 0.01*circum/V;
-% velocity(1) = -alpha*(mvDataNorm(2)*sin(vr.position(4))-mvDataNorm(1)*cos(vr.position(4)));
-% velocity(2) = alpha*(mvDataNorm(2)*cos(vr.position(4))+mvDataNorm(1)*sin(vr.position(4)));
-% 
-% velocity(4) = beta*mvDataNorm(3);
-% 
-% if flip
-%     velocity(4) = -beta*mvDataNorm(1);
-% end
-%}
-
-% use roll and pitch only
+ 
+%use all 3
 beta = 0.01*circum/V;
-velocity(1) = -alpha*mvDataNorm(2)*sin(vr.position(4));
-velocity(2) = alpha*mvDataNorm(2)*cos(vr.position(4));
-velocity(4) = beta*mvDataNorm(1);
+velocity(1) = -alpha*(mvDataNorm(2)*sin(vr.position(4))-mvDataNorm(1)*cos(vr.position(4)));
+velocity(2) = alpha*(mvDataNorm(2)*cos(vr.position(4))+mvDataNorm(1)*sin(vr.position(4)));
+
+velocity(4) = beta*mvDataNorm(3);
+v
+disp(mvDataNorm);
 if flip
     velocity(4) = -beta*mvDataNorm(1);
 end
+
+
+% % use roll and pitch only
+% beta = 0.01*circum/V;
+% velocity(1) = -alpha*mvDataNorm(2)*sin(vr.position(4)) ;
+% velocity(2) = alpha*mvDataNorm(2)*cos(vr.position(4));
+% velocity(4) = beta*mvDataNorm(1);
+% disp(mvDataNorm);
+% if flip
+%     velocity(4) = -beta*mvDataNorm(1);
+% end
 
 end
