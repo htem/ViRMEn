@@ -14,11 +14,12 @@ function vr = initializationCodeFun(vr)
 
 % set parameters
 vr.debugMode = false;
-vr.mouseNum = 099;
+vr.mouseNum = 030;
 vr.friction = 1; %no friction
-vr.adjustmentFactor = 0.02;
+vr.adjustmentFactor = 0.01;
 vr.lengthFactor = 0;		
 vr.trialTimeout = 60;
+vr.increaseLengthTime = 20;
 vr.itiDur = 2;
             
 % experimental condition labeel
@@ -120,7 +121,7 @@ switch vr.STATE
     case 'INIT_TRIAL'
             % if mouse completed in less than 20 sec, make the map longer
             % otherwise make it shorter
-            if vr.trialTime < vr.trialTimeout
+            if vr.trialTime < vr.increaseLengthTime
                 vr.lengthFactor = vr.lengthFactor + vr.adjustmentFactor;
             else
                 vr.lengthFactor = vr.lengthFactor - vr.adjustmentFactor;
