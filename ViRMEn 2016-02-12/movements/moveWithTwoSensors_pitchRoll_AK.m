@@ -11,7 +11,7 @@ end
 % Teensy can send voltage between 0 and 3.3V, so that ~1.65 V 
 % corresponds to no movement. This voltage needs calibration 
 % because there is subtle fluctuations from day to day.
-mvDataNorm = mvData - [1.688044, 1.687922, 1.685460]    ; 
+mvDataNorm = mvData - [1.698306, 1.698282, 1.696332]    ; 
 
 % mvData
 % 1: roll
@@ -24,7 +24,11 @@ V = 0.33; % integral of voltage over one rotation of the ball
 
 circum = 64; % circumference of the ball 
 %calibrated AK 170308
-gain = .45; % basically a fudge factor
+%recalibrated AK 180816
+%recalibrated AK 180905, sensors were not working well (pitch)
+gain = .4; % basically a fudge factor
+
+
 % 100 unit is defined as 75 cm
 alpha = -100/75*gain*circum/V;
 flip = 0; % set to 1 if the mirror flips right and left in Virmen 
@@ -51,7 +55,9 @@ velocity(2) = alpha*mvDataNorm(2)*cos(vr.position(4));
 %}
 
 % use roll and pitch only
-beta = 0.01*circum/V;
+% ATK calibrated 180816
+rollgain = 1.8;
+beta = 0.01*rollgain*circum/V;
 velocity(1) = -alpha*mvDataNorm(2)*sin(vr.position(4));
 velocity(2) = alpha*mvDataNorm(2)*cos(vr.position(4));
 velocity(4) = beta*mvDataNorm(1);
