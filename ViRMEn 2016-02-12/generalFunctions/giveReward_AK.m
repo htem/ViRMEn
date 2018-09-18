@@ -3,7 +3,7 @@ function [vr] = giveReward_AK(vr,nRew)
 %(instantaneous pulses)
 %   nRew - number of rewards to deliver
 
-sinDur = .064; %Calibrated every day to give 1 mL for 250 rewards
+sinDur = .1; %Calibrated every day to give 1 mL for 250 rewards
 % equiv to 4 uL each.
 
 disp(['Reward Given at ' datestr(now, 'HH:MM:SS')]);

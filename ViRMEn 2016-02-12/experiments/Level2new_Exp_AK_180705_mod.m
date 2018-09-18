@@ -138,6 +138,7 @@ switch vr.STATE
             
         elseif toc(vr.trialStart) > vr.timeout
             vr.numTrials = vr.numTrials + 1;
+            vr.trialLength = toc(vr.trialStart);
             vr.trialTime = vr.timeout;
             vr.success = 0;
             vr.STATE = 'INIT_ITI';
