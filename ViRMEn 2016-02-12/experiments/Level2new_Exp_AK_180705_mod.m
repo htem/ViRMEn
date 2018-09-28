@@ -12,7 +12,7 @@ function vr = initializationCodeFun(vr)
 %%%%% These variables should be checked each run %%%%%
 vr.debugMode = false;
 vr.verbose = true;
-vr.mouseNum = 099;
+vr.mouseNum = 033;
 vr.adjustmentFactor = 0.01;
 vr.initialLengthFactor = 0.25;
 %%%%%%%%%%%
