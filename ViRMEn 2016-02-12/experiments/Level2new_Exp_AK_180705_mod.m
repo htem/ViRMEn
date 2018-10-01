@@ -12,7 +12,7 @@ function vr = initializationCodeFun(vr)
 %%%%% These variables should be checked each run %%%%%
 vr.debugMode = false;
 vr.verbose = true;
-vr.mouseNum = 033;
+vr.mouseNum = 034;
 vr.adjustmentFactor = 0.01;
 vr.initialLengthFactor = 0.25;
 %%%%%%%%%%%
@@ -139,6 +139,7 @@ switch vr.STATE
         elseif toc(vr.trialStart) > vr.timeout
             vr.numTrials = vr.numTrials + 1;
             vr.trialLength = toc(vr.trialStart);
+            vr.trialEndClk = vr.iterationNum;
             vr.trialTime = vr.timeout;
             vr.success = 0;
             vr.STATE = 'INIT_ITI';
