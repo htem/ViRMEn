@@ -167,17 +167,19 @@ if vr.frameCount > 152
     error('done');
 elseif vr.frameCount > 76
     vr.cuePos = 3;
-    vr.frameData = vr.vData_recalc.vDataBlackAvg;
+    vr.frameData = vr.vData_recalc.vDataWhiteAvg;
     vr.frameShift=76;
 else
     vr.cuePos = 2;
-    vr.frameData = vr.vData_recalc.vDataWhiteAvg;
+    vr.frameData = vr.vData_recalc.vDataBlackAvg;
     vr.frameShift=0;
 end
 vr.worlds{1}.surface.visible(:) = 0;
 
 
-if ismember(vr.frameCount, cat(1,[14:64],[76+14:76+64]))
+if ismember(vr.frameCount, cat(1,[13:64],[76+13:76+64]))
+    disp(num2str(vr.frameCount));
+    disp(num2str(vr.cuePos));
     switch vr.cuePos
     case 1
         vr.worlds{1}.surface.visible(vr.blackLeftOn) = 1;
